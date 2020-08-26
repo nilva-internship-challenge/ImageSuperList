@@ -1,6 +1,6 @@
 # Image Super List
 
-Flutter client for lazily loaded image list
+Flutter client for lazily loaded list
 
 ## Introduction
 
