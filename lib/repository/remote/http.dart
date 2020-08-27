@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:nilva_image_super_list/repository/model/photo_model.dart';
 import 'package:nilva_image_super_list/repository/remote/url.dart';
 
 class DioClient {
@@ -29,5 +30,24 @@ class DioClient {
       requestBody: false,
       error: true,
     ));
+  }
+}
+
+
+Future<PhotosList> getPhotoList(int page, int limit) async {
+  Response response;
+  try {
+    response = await DioClient().dio.get(BASE_URL + LIST,
+        queryParameters: {
+          "page": page,
+          "limit": limit
+        });
+    if (response.statusCode == 200) {
+      return PhotosList.fromJson(response.data);
+    } else {
+      return null;
+    }
+  } on DioError catch (error, stacktrace) {
+    throw Exception("Exception occurred: $error stackTrace: $stacktrace");
   }
 }
