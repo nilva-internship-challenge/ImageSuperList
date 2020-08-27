@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:nilva_image_super_list/repository/model/photo_model.dart';
 import 'package:nilva_image_super_list/repository/remote/http.dart';
 import 'package:nilva_image_super_list/ui/photo_card.dart';
@@ -32,33 +31,43 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  ScrollController scrollController = ScrollController();
   int page = 1;
   List<PhotoModel> items = [];
-  bool isLoading = true;
+  bool isLoading = false;
 
   @override
   void initState() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      getPhotoList(page, 10).then((value) {
-        setState(() {
-          items.addAll(value.photos);
-          isLoading = false;
-          page++;
-        });
-      });
-    });
+    this.getMoreData();
     super.initState();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        getMoreData();
+      }
+    });
   }
 
-  _loadData() {
-    getPhotoList(page, 10).then((value) {
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  void getMoreData() async {
+    if (!isLoading) {
       setState(() {
-        items.addAll(value.photos);
-        page++;
-        print(page);
-        isLoading = false;
+        isLoading = true;
       });
-    });
+
+      final response = await getPhotoList(page, 10);
+      page++;
+
+      setState(() {
+        isLoading = false;
+        items.addAll(response.photos);
+      });
+    }
   }
 
   @override
@@ -68,53 +77,40 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Container(
-        child: items.isNotEmpty
-            ? Column(
-                children: <Widget>[
-                  Expanded(
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (!isLoading &&
-                            scrollInfo.metrics.pixels ==
-                                scrollInfo.metrics.maxScrollExtent) {
-                          _loadData();
-                          setState(() {
-                            isLoading = true;
-                          });
-                        }
-                      },
-                      child: ListView.builder(
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          return PhotoCard(
-                            photoModel: items[index],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: isLoading ? 50.0 : 0,
-                    color: Colors.transparent,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ],
-              )
-            : Container(
-                alignment: Alignment.center,
-                child: Center(
-                  child: SizedBox(
-                    height: 45,
-                    width: 45,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3.0,
-                    ),
-                  ),
-                ),
-              ),
+        child: ListView.builder(
+          controller: scrollController,
+          itemCount: items.length + 1,
+          itemBuilder: (context, index) {
+            if (index == items.length) {
+              return Loader(isLoading: isLoading,);
+            } else {
+              return PhotoCard(
+                photoModel: items[index],
+              );
+            }
+          },
+        ),
       ),
     );
   }
 }
+
+class Loader extends StatelessWidget {
+  final isLoading;
+
+  const Loader({Key key, this.isLoading}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: Opacity(
+          opacity: isLoading ? 1.0 : 00,
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+}
+
