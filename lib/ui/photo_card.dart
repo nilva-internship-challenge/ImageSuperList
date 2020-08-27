@@ -24,64 +24,64 @@ class _PhotoCardState extends State<PhotoCard> {
       child: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height * 0.3,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(5.0),
-              child: Image.network(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5.0),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.network(
                 decreaseSize(widget.photoModel.downloadUrl),
                 fit: BoxFit.fill,
               ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Opacity(
-                opacity: 0.3,
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Opacity(
+                  opacity: 0.3,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 50,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   height: 50,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: 50,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                    ),
-                    Text(
-                      widget.photoModel.author,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 16,
                       ),
-                    ),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(
-                        isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: Colors.white,
+                      Text(
+                        widget.photoModel.author,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
                       ),
-                      onPressed: () {
-                        setState(() {
-                          isLiked = !isLiked;
-                        });
-                      },
-                    ),
-                    SizedBox(
-                      width: 8,
-                    )
-                  ],
+                      Spacer(),
+                      IconButton(
+                        icon: Icon(
+                          isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isLiked = !isLiked;
+                          });
+                        },
+                      ),
+                      SizedBox(
+                        width: 8,
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );
