@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:nilva_image_super_list/repository/model/photo_model.dart';
-import 'package:nilva_image_super_list/repository/remote/url.dart';
+import 'package:nilva_image_super_list/repository/remote/urls.dart';
 
 class DioClient {
   static BaseOptions options = BaseOptions(
