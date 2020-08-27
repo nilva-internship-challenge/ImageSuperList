@@ -32,18 +32,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  PhotosList photosList;
+  int page = 1;
+  List<PhotoModel> items = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      getPhotoList(1, 10).then((value) {
-            setState(() {
-              photosList = value;
-            });
-          });
+      getPhotoList(page, 10).then((value) {
+        setState(() {
+          items.addAll(value.photos);
+          isLoading = false;
+          page++;
+        });
+      });
     });
     super.initState();
+  }
+
+  _loadData() {
+    getPhotoList(page, 10).then((value) {
+      setState(() {
+        items.addAll(value.photos);
+        page++;
+        print(page);
+        isLoading = false;
+      });
+    });
   }
 
   @override
@@ -52,13 +67,53 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView.builder(
-        itemCount: photosList?.photos?.length ?? 0,
-        itemBuilder: (_, int index) {
-          return PhotoCard(
-            photoModel: photosList.photos[index],
-          );
-        },
+      body: Container(
+        child: items.isNotEmpty
+            ? Column(
+                children: <Widget>[
+                  Expanded(
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (!isLoading &&
+                            scrollInfo.metrics.pixels ==
+                                scrollInfo.metrics.maxScrollExtent) {
+                          _loadData();
+                          setState(() {
+                            isLoading = true;
+                          });
+                        }
+                      },
+                      child: ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          return PhotoCard(
+                            photoModel: items[index],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: isLoading ? 50.0 : 0,
+                    color: Colors.transparent,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ],
+              )
+            : Container(
+                alignment: Alignment.center,
+                child: Center(
+                  child: SizedBox(
+                    height: 45,
+                    width: 45,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3.0,
+                    ),
+                  ),
+                ),
+              ),
       ),
     );
   }
