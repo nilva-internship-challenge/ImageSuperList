@@ -1,4 +1,4 @@
-# Image Super List
+# In name of Allah
 
 Flutter client for lazily loaded list
 
